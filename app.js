@@ -2,6 +2,16 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const graphqlHttp = require('express-graphql');
 const { buildSchema } = require('graphql');
+const mongoose = require('mongoose');
+const Event = require('./models/event');
+var db = mongoose.connection;
+db.on('error', function () {
+    console.log('error in connecting Databse');
+});
+db.once('connected', function () {
+    console.log('Connected to GraphQL Database...');
+})
+mongoose.connect('mongodb://localhost:27017/GraphQL', { useNewUrlParser: true });
 
 
 
@@ -51,17 +61,31 @@ app.use(
                 return events
             },
             createEvent: (args) => {
-                const event = {
-                    _id: Math.random().toString(),
+                // const event = {
+                //     _id: Math.random().toString(),
+                //     title: args.eventInput.title,
+                //     description: args.eventInput.description,
+                //     price: +args.eventInput.price,
+                //     date: new Date().toISOString()
+                // }
+                const newEvent = new Event({
+                    _id: mongoose.Types.ObjectId(),
                     title: args.eventInput.title,
                     description: args.eventInput.description,
                     price: +args.eventInput.price,
                     date: new Date().toISOString()
-                }
+                })
+                return newEvent.save().then((result) => {
+                    console.log(result);
+                    return {...result._doc};
+                }).catch(err => {
+                    console.log(err);
+                    throw err;
+                });
 
-                events.push(event);
-                return event;
-                
+
+                //events.push(event);
+
             }
         },
         graphiql: true,
@@ -84,7 +108,7 @@ app.use(
 //         type RootMutation {
 //             createEvent(name: String): String
 //         }
-        
+
 //      `),
 //         rootValue: {
 //             events: () => {
