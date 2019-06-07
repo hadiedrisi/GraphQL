@@ -1,0 +1,33 @@
+mutation{
+  createUser(userInput: {
+    email:"hadi.mhe@gmail.com",
+    password:"test"
+  }),
+  {
+    _id
+  }
+}
+
+mutation{
+  createEvent(eventInput: {
+    title:"Test A",
+    description:"This is test data",
+    price: 3.652
+  })
+  {
+    _id
+    title
+    description
+  }
+}
+
+
+
+query{
+  events{
+    creator{
+      password
+      
+    }
+  }
+}
